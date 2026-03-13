@@ -6,10 +6,30 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint ./src",
+    "lint:fix": "biome lint --write ./src",
+    "format": "biome format --write ./src",
+    "check": "biome check ./src",
+    "check:fix": "biome check --write ./src",
+    "ci": "biome ci ./src"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.6",
+    "@commitlint/cli": "^20.4.4",
+    "@commitlint/config-conventional": "^20.4.4",
+    "@commitlint/types": "^20.4.4",
+    "lint-staged": "^16.3.3",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "~5.9.3",
     "vite": "^8.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged",
+    "commit-msg": "npx commitlint --edit $1"
+  },
+  "lint-staged": {
+    "*.{ts,json}": "biome check --write --no-errors-on-unmatched"
   }
 }
