@@ -25,7 +25,7 @@ scene.add(new THREE.AxesHelper(10));
 scene.add(new THREE.GridHelper(200, 20, 0x444466, 0x333355));
 
 const BOARD_W = 80;
-const BOARD_H = 2; // très mince — 2cm d'épaisseur
+const BOARD_H = 2;
 const BOARD_D = 30;
 
 const boardGeo = new THREE.BoxGeometry(BOARD_W, BOARD_H, BOARD_D);
