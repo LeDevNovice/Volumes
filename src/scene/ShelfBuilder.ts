@@ -7,51 +7,90 @@ import {
   type ShelfConfig,
 } from '../core/ShelfConfig';
 
-const debugMaterials = {
+const MAT = {
   board: new THREE.MeshBasicMaterial({ color: 0xc68642, side: THREE.DoubleSide }),
   side: new THREE.MeshBasicMaterial({ color: 0x1d9e75, side: THREE.DoubleSide }),
   back: new THREE.MeshBasicMaterial({
     color: 0x378add,
-    side: THREE.DoubleSide,
-    opacity: 0.7,
+    opacity: 0.65,
     transparent: true,
+    side: THREE.DoubleSide,
   }),
   wire: new THREE.MeshBasicMaterial({
     color: 0xffffff,
     wireframe: true,
-    opacity: 0.15,
+    opacity: 0.12,
     transparent: true,
   }),
 } as const;
 
-export function buildSingleBoard(config: ShelfConfig): THREE.Group {
-  const cfg = { ...defaultShelfConfig, ...config };
-  const { width, depth, boardThickness } = cfg;
-
-  const group = new THREE.Group();
-  group.name = 'ShelfUnit';
-  const boardGeo = new THREE.BoxGeometry(width, boardThickness, depth);
-
-  const bottomBoard = new THREE.Mesh(boardGeo, debugMaterials.board);
-  bottomBoard.position.y = boardThickness / 2;
-
-  const bottomWire = new THREE.Mesh(boardGeo, debugMaterials.wire);
-  bottomWire.position.y = boardThickness / 2;
-
-  bottomBoard.userData = {
-    type: 'board',
-    boardIndex: 0,
-    label: 'bottom',
-  };
-
-  group.add(bottomBoard, bottomWire);
-
-  return group;
+function makeMeshWithWire(
+  geo: THREE.BufferGeometry,
+  mat: THREE.Material,
+  name: string
+): THREE.Mesh[] {
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = name;
+  const wire = new THREE.Mesh(geo, MAT.wire);
+  wire.name = `${name}-wire`;
+  return [mesh, wire];
 }
 
 export function buildShelf(partialConfig: PartialShelfConfig = {}): THREE.Group {
   const cfg: ShelfConfig = { ...defaultShelfConfig, ...partialConfig };
-  return buildSingleBoard(cfg);
+  const { width, totalHeight, depth, boardThickness, hasBack, hasSides } = cfg;
+  const half = boardThickness / 2;
+
+  const group = new THREE.Group();
+  group.name = 'ShelfUnit';
+
+  const boardGeo = new THREE.BoxGeometry(width, boardThickness, depth);
+  const sideGeo = new THREE.BoxGeometry(boardThickness, totalHeight, depth);
+  const backGeo = new THREE.BoxGeometry(width, totalHeight, boardThickness);
+
+  if (hasSides) {
+    const sideY = totalHeight / 2;
+    const sideX = width / 2 + half;
+
+    const [lm, lw] = makeMeshWithWire(sideGeo, MAT.side, 'side-left');
+    lm.position.set(-sideX, sideY, 0);
+    lw.position.set(-sideX, sideY, 0);
+    lm.userData = { type: 'side', side: 'left' };
+
+    const [rm, rw] = makeMeshWithWire(sideGeo, MAT.side, 'side-right');
+    rm.position.set(sideX, sideY, 0);
+    rw.position.set(sideX, sideY, 0);
+    rm.userData = { type: 'side', side: 'right' };
+
+    group.add(lm, lw, rm, rw);
+  }
+
+  if (hasBack) {
+    const backZ = -(depth / 2) - half;
+    const backY = totalHeight / 2;
+    const [bm, bw] = makeMeshWithWire(backGeo, MAT.back, 'back');
+    bm.position.set(0, backY, backZ);
+    bw.position.set(0, backY, backZ);
+    bm.userData = { type: 'back' };
+    group.add(bm, bw);
+  }
+
+  const boardPositions = computeBoardPositions(cfg);
+  for (const pos of boardPositions) {
+    const [bm, bw] = makeMeshWithWire(boardGeo, MAT.board, `board-${pos.label}`);
+    bm.position.set(0, pos.centerY, 0);
+    bw.position.set(0, pos.centerY, 0);
+    bm.userData = {
+      type: 'board',
+      label: pos.label,
+      index: pos.index,
+      bottomFaceY: pos.bottomFaceY,
+      topFaceY: pos.topFaceY,
+    };
+    group.add(bm, bw);
+  }
+
+  return group;
 }
 
 export { computeBoardPositions, computeZoneHeight, defaultShelfConfig };
