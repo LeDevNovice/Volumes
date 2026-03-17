@@ -12,48 +12,47 @@ const sizes: Sizes = {
   height: window.innerHeight,
 };
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.set(5, 3, 8);
-camera.lookAt(3, 0, 0);
+const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 1000);
+camera.position.set(0, 60, 120);
+camera.lookAt(0, 0, 0);
 scene.add(camera);
 
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-const axesHelper = new THREE.AxesHelper(3);
-scene.add(axesHelper);
+scene.add(new THREE.AxesHelper(10));
+scene.add(new THREE.GridHelper(200, 20, 0x444466, 0x333355));
 
-const gridHelper = new THREE.GridHelper(20, 20, 0x444466, 0x333355);
-scene.add(gridHelper);
+const BOARD_W = 80;
+const BOARD_H = 2; // très mince — 2cm d'épaisseur
+const BOARD_D = 30;
 
-const group = new THREE.Group();
-scene.add(group);
+const boardGeo = new THREE.BoxGeometry(BOARD_W, BOARD_H, BOARD_D);
 
-const material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0x88aaff });
+const boardMesh = new THREE.Mesh(
+  boardGeo,
+  new THREE.MeshBasicMaterial({ color: 0xc68642, wireframe: false })
+);
 
-const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-meshA.position.x = -1.5;
-group.add(meshA);
+boardMesh.position.y = BOARD_H / 2;
+scene.add(boardMesh);
 
-const meshB = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-meshB.position.x = 0;
-group.add(meshB);
-
-const meshC = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-meshC.position.x = 1.5;
-group.add(meshC);
-
-group.position.x = 3;
-group.rotation.y = Math.PI / 4;
+const wireframeMesh = new THREE.Mesh(
+  boardGeo,
+  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, opacity: 0.2, transparent: true })
+);
+wireframeMesh.position.y = BOARD_H / 2;
+scene.add(wireframeMesh);
 
 const timer = new THREE.Timer();
 
 function animate(): void {
   requestAnimationFrame(animate);
-
   timer.update();
-  group.rotation.y = timer.getElapsed() * 0.5;
+
+  boardMesh.rotation.y = timer.getElapsed() * 0.3;
+  wireframeMesh.rotation.y = boardMesh.rotation.y;
 
   renderer.render(scene, camera);
 }
