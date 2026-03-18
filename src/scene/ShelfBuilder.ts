@@ -8,10 +8,22 @@ import {
 } from '../core/ShelfConfig';
 
 const MAT = {
-  board: new THREE.MeshBasicMaterial({ color: 0xc68642, side: THREE.DoubleSide }),
-  side: new THREE.MeshBasicMaterial({ color: 0x1d9e75, side: THREE.DoubleSide }),
-  back: new THREE.MeshBasicMaterial({
+  board: new THREE.MeshStandardMaterial({
+    color: 0xc68642,
+    roughness: 0.8,
+    metalness: 0.0,
+    side: THREE.DoubleSide,
+  }),
+  side: new THREE.MeshStandardMaterial({
+    color: 0x1d9e75,
+    roughness: 0.7,
+    metalness: 0.0,
+    side: THREE.DoubleSide,
+  }),
+  back: new THREE.MeshStandardMaterial({
     color: 0x378add,
+    roughness: 0.6,
+    metalness: 0.0,
     opacity: 0.65,
     transparent: true,
     side: THREE.DoubleSide,
@@ -31,8 +43,10 @@ function makeMeshWithWire(
 ): THREE.Mesh[] {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
+
   const wire = new THREE.Mesh(geo, MAT.wire);
   wire.name = `${name}-wire`;
+
   return [mesh, wire];
 }
 

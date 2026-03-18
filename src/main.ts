@@ -7,12 +7,12 @@ const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl');
 if (!canvas) throw new Error('Canvas element not found in DOM');
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(1, 1, 1);
+scene.background = new THREE.Color(0x1a1a2e);
 
 const sizes = { width: window.innerWidth, height: window.innerHeight };
 
-const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 2000);
-camera.position.set(0, 80, 250);
+const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 1, 1000);
+camera.position.set(0, 100, 230);
 camera.lookAt(0, 100, 0);
 scene.add(camera);
 
@@ -24,6 +24,9 @@ if (DEBUG) {
   scene.add(new THREE.AxesHelper(100));
   scene.add(new THREE.GridHelper(500, 50, 0x444466, 0x333355));
 }
+
+const ambientLight = new THREE.AmbientLight(0xfff4e0, 0.4);
+scene.add(ambientLight);
 
 const shelfGroup = buildShelf();
 scene.add(shelfGroup);
