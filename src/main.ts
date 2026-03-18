@@ -19,6 +19,8 @@ scene.add(camera);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 if (DEBUG) {
   scene.add(new THREE.AxesHelper(100));
@@ -28,7 +30,38 @@ if (DEBUG) {
 const ambientLight = new THREE.AmbientLight(0xfff4e0, 0.4);
 scene.add(ambientLight);
 
+const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.5);
+dirLight.position.set(1, 2, 1);
+dirLight.castShadow = true;
+
+dirLight.shadow.mapSize.set(2048, 2048);
+dirLight.shadow.camera.left = -100;
+dirLight.shadow.camera.right = 100;
+dirLight.shadow.camera.top = 250;
+dirLight.shadow.camera.bottom = -10;
+dirLight.shadow.camera.near = 0.1;
+dirLight.shadow.camera.far = 600;
+scene.add(dirLight);
+
+const floorGeo = new THREE.PlaneGeometry(400, 400);
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0x2a2a3a,
+  roughness: 0.9,
+  metalness: 0.0,
+});
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = 0;
+floor.receiveShadow = true;
+scene.add(floor);
+
 const shelfGroup = buildShelf();
+shelfGroup.traverse((node) => {
+  if (node instanceof THREE.Mesh) {
+    node.castShadow = true;
+    node.receiveShadow = true;
+  }
+});
 scene.add(shelfGroup);
 
 renderer.render(scene, camera);
