@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { buildLightingRig, LIGHTING } from './scene/SceneManager';
 import { buildShelf } from './scene/ShelfBuilder';
 
 const DEBUG = true;
@@ -27,21 +28,8 @@ if (DEBUG) {
   scene.add(new THREE.GridHelper(500, 50, 0x444466, 0x333355));
 }
 
-const ambientLight = new THREE.AmbientLight(0xfff4e0, 0.4);
-scene.add(ambientLight);
-
-const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.5);
-dirLight.position.set(1, 2, 1);
-dirLight.castShadow = true;
-
-dirLight.shadow.mapSize.set(2048, 2048);
-dirLight.shadow.camera.left = -100;
-dirLight.shadow.camera.right = 100;
-dirLight.shadow.camera.top = 250;
-dirLight.shadow.camera.bottom = -10;
-dirLight.shadow.camera.near = 0.1;
-dirLight.shadow.camera.far = 600;
-scene.add(dirLight);
+const rig = buildLightingRig(LIGHTING);
+rig.addToScene(scene);
 
 const floorGeo = new THREE.PlaneGeometry(400, 400);
 const floorMat = new THREE.MeshStandardMaterial({
