@@ -42,7 +42,7 @@ const rig = buildLightingRig(LIGHTING);
 rig.addToScene(scene);
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(400, 400),
+  new THREE.PlaneGeometry(600, 600),
   new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.9, metalness: 0.0 })
 );
 floor.rotation.x = -Math.PI / 2;
@@ -57,16 +57,11 @@ const shelfParams = {
   shelfCount: defaultShelfConfig.shelfCount,
   hasBack: defaultShelfConfig.hasBack,
   hasSides: defaultShelfConfig.hasSides,
+  color: defaultShelfConfig.color,
   showWireframes: false,
 };
 
 let shelfGroup = buildShelf(shelfParams, shelfParams.showWireframes);
-shelfGroup.traverse((node) => {
-  if (node instanceof THREE.Mesh) {
-    node.castShadow = true;
-    node.receiveShadow = true;
-  }
-});
 scene.add(shelfGroup);
 
 function rebuildShelf(): void {
@@ -79,12 +74,6 @@ function rebuildShelf(): void {
   });
 
   shelfGroup = buildShelf(shelfParams, shelfParams.showWireframes);
-  shelfGroup.traverse((node) => {
-    if (node instanceof THREE.Mesh) {
-      node.castShadow = true;
-      node.receiveShadow = true;
-    }
-  });
   scene.add(shelfGroup);
 }
 
@@ -94,122 +83,60 @@ if (DEBUG) {
   const { default: GUI } = await import('lil-gui');
   const gui = new GUI({ title: 'Volumes Debug' });
 
-  const ambientParams = {
-    intensity: rig.ambient.intensity,
-    color: `#${rig.ambient.color.getHexString()}`,
-  };
   const ambientFolder = gui.addFolder('Ambient Light');
   ambientFolder
-    .add(ambientParams, 'intensity', 0, 2, 0.01)
-    .name('intensity')
+    .add({ intensity: rig.ambient.intensity }, 'intensity', 0, 2, 0.01)
     .onChange((v: number) => {
       rig.ambient.intensity = v;
     });
   ambientFolder
-    .addColor(ambientParams, 'color')
-    .name('color')
+    .addColor({ color: `#${rig.ambient.color.getHexString()}` }, 'color')
     .onChange((v: string) => {
       rig.ambient.color.set(v);
     });
 
-  const keyParams = {
-    intensity: rig.key.intensity,
-    color: `#${rig.key.color.getHexString()}`,
-    posX: rig.key.position.x,
-    posY: rig.key.position.y,
-    posZ: rig.key.position.z,
-  };
-
   const keyFolder = gui.addFolder('Key Light (DirectionalLight)');
+  keyFolder.add({ intensity: rig.key.intensity }, 'intensity', 0, 3, 0.01).onChange((v: number) => {
+    rig.key.intensity = v;
+  });
   keyFolder
-    .add(keyParams, 'intensity', 0, 3, 0.01)
-    .name('intensity')
-    .onChange((v: number) => {
-      rig.key.intensity = v;
-    });
-  keyFolder
-    .addColor(keyParams, 'color')
-    .name('color')
+    .addColor({ color: `#${rig.key.color.getHexString()}` }, 'color')
     .onChange((v: string) => {
       rig.key.color.set(v);
     });
-  keyFolder
-    .add(keyParams, 'posX', -200, 200, 1)
-    .name('position.x')
-    .onChange((v: number) => {
-      rig.key.position.x = v;
-    });
-  keyFolder
-    .add(keyParams, 'posY', 0, 300, 1)
-    .name('position.y')
-    .onChange((v: number) => {
-      rig.key.position.y = v;
-    });
-  keyFolder
-    .add(keyParams, 'posZ', -200, 200, 1)
-    .name('position.z')
-    .onChange((v: number) => {
-      rig.key.position.z = v;
-    });
+  keyFolder.add(rig.key.position, 'x', -200, 200, 1).name('position.x');
+  keyFolder.add(rig.key.position, 'y', 0, 300, 1).name('position.y');
+  keyFolder.add(rig.key.position, 'z', -200, 200, 1).name('position.z');
 
-  const fillParams = {
-    intensity: rig.fill.intensity,
-    color: `#${rig.fill.color.getHexString()}`,
-    distance: rig.fill.distance,
-  };
   const fillFolder = gui.addFolder('Fill Light (PointLight)');
   fillFolder
-    .add(fillParams, 'intensity', 0, 3, 0.01)
-    .name('intensity')
+    .add({ intensity: rig.fill.intensity }, 'intensity', 0, 3, 0.01)
     .onChange((v: number) => {
       rig.fill.intensity = v;
     });
   fillFolder
-    .addColor(fillParams, 'color')
-    .name('color')
+    .addColor({ color: `#${rig.fill.color.getHexString()}` }, 'color')
     .onChange((v: string) => {
       rig.fill.color.set(v);
     });
   fillFolder
-    .add(fillParams, 'distance', 100, 800, 10)
-    .name('max distance')
+    .add({ distance: rig.fill.distance }, 'distance', 100, 800, 10)
     .onChange((v: number) => {
       rig.fill.distance = v;
     });
   fillFolder.close();
 
-  const boardMesh = shelfGroup.children.find(
-    (c) => c instanceof THREE.Mesh && c.name.startsWith('board-')
-  ) as THREE.Mesh | undefined;
-
-  if (boardMesh && boardMesh.material instanceof THREE.MeshStandardMaterial) {
-    const boardMat = boardMesh.material;
-    const matParams = {
-      roughness: boardMat.roughness,
-      metalness: boardMat.metalness,
-      color: `#${boardMat.color.getHexString()}`,
-    };
-    const matFolder = gui.addFolder('Board Material');
-    matFolder
-      .addColor(matParams, 'color')
-      .name('color')
-      .onChange((v: string) => {
-        boardMat.color.set(v);
-      });
-    matFolder
-      .add(matParams, 'roughness', 0, 1, 0.01)
-      .name('roughness')
-      .onChange((v: number) => {
-        boardMat.roughness = v;
-      });
-    matFolder
-      .add(matParams, 'metalness', 0, 1, 0.01)
-      .name('metalness')
-      .onChange((v: number) => {
-        boardMat.metalness = v;
-      });
-    matFolder.close();
-  }
+  const shelfFolder = gui.addFolder('Shelf Config');
+  shelfFolder.add(shelfParams, 'width', 40, 240, 1).name('width (cm)').onChange(rebuildShelf);
+  shelfFolder
+    .add(shelfParams, 'totalHeight', 80, 300, 1)
+    .name('height (cm)')
+    .onChange(rebuildShelf);
+  shelfFolder.add(shelfParams, 'depth', 15, 60, 1).name('depth (cm)').onChange(rebuildShelf);
+  shelfFolder.add(shelfParams, 'shelfCount', 2, 10, 1).name('shelf count').onChange(rebuildShelf);
+  shelfFolder.add(shelfParams, 'hasBack').name('back panel').onChange(rebuildShelf);
+  shelfFolder.add(shelfParams, 'hasSides').name('side panels').onChange(rebuildShelf);
+  shelfFolder.addColor(shelfParams, 'color').name('wood color').onChange(rebuildShelf);
 
   const cameraFolder = gui.addFolder('Camera');
   cameraFolder
@@ -223,7 +150,7 @@ if (DEBUG) {
       }
     });
   cameraFolder
-    .add(CAMERA_STATIC, 'z', 50, 500, 1)
+    .add(CAMERA_STATIC, 'z', 50, 600, 1)
     .name('distance (Z)')
     .onChange(() => {
       if (!isOrbiting) {
@@ -232,26 +159,13 @@ if (DEBUG) {
       }
     });
 
-  const shelfFolder = gui.addFolder('Shelf Config');
-  shelfFolder.add(shelfParams, 'width', 40, 240, 1).name('width (cm)').onChange(rebuildShelf);
-  shelfFolder
-    .add(shelfParams, 'totalHeight', 80, 300, 1)
-    .name('height (cm)')
-    .onChange(rebuildShelf);
-  shelfFolder.add(shelfParams, 'depth', 15, 60, 1).name('depth (cm)').onChange(rebuildShelf);
-  shelfFolder.add(shelfParams, 'shelfCount', 2, 10, 1).name('shelf count').onChange(rebuildShelf);
-  shelfFolder.add(shelfParams, 'hasBack').name('back panel').onChange(rebuildShelf);
-  shelfFolder.add(shelfParams, 'hasSides').name('side panels').onChange(rebuildShelf);
-
   const debugFolder = gui.addFolder('Debug');
   debugFolder
     .add(shelfParams, 'showWireframes')
     .name('wireframes')
     .onChange((v: boolean) => {
       shelfGroup.traverse((node) => {
-        if (node instanceof THREE.Mesh && node.name.endsWith('-wire')) {
-          node.visible = v;
-        }
+        if (node instanceof THREE.Mesh && node.name.endsWith('-wire')) node.visible = v;
       });
     });
   debugFolder
