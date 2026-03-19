@@ -1,82 +1,81 @@
 import * as THREE from 'three';
-
-export interface LightingConfig {
-  ambient: {
-    color: number;
-    intensity: number;
-  };
-  key: {
-    color: number;
-    intensity: number;
-    position: THREE.Vector3;
-  };
-  fill: {
-    color: number;
-    intensity: number;
-    position: THREE.Vector3;
-    distance: number;
-    decay: number;
-  };
+export interface SceneContext {
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  timer: THREE.Timer;
+  sizes: { width: number; height: number };
 }
 
-export interface ThreePointRig {
-  ambient: THREE.AmbientLight;
-  key: THREE.DirectionalLight;
-  fill: THREE.PointLight;
-  addToScene: (scene: THREE.Scene) => void;
-}
+export const CAMERA_FOV = 60;
+export const CAMERA_NEAR = 1;
+export const CAMERA_FAR = 1000;
+export const LOOK_TARGET = new THREE.Vector3(0, 100, 0);
+export const CAMERA_STATIC = new THREE.Vector3(0, 100, 230);
 
-export const LIGHTING: LightingConfig = {
-  ambient: {
-    color: 0xfff4e0,
-    intensity: 0.3,
-  },
-  key: {
-    color: 0xfff4e0,
-    intensity: 1.5,
-    position: new THREE.Vector3(1, 2, 1),
-  },
-  fill: {
-    color: 0xe0f0ff,
-    intensity: 0.8,
-    position: new THREE.Vector3(-100, 100, 50),
-    distance: 400,
-    decay: 2,
-  },
-} as const;
+export function initScene(canvas: HTMLCanvasElement): SceneContext {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1a2e);
 
-export function buildLightingRig(cfg: LightingConfig = LIGHTING): ThreePointRig {
-  const ambient = new THREE.AmbientLight(cfg.ambient.color, cfg.ambient.intensity);
-  ambient.name = 'ambient';
+  const sizes = { width: window.innerWidth, height: window.innerHeight };
 
-  const key = new THREE.DirectionalLight(cfg.key.color, cfg.key.intensity);
-  key.name = 'key';
-  key.position.copy(cfg.key.position);
-  key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.left = -100;
-  key.shadow.camera.right = 100;
-  key.shadow.camera.top = 250;
-  key.shadow.camera.bottom = -10;
-  key.shadow.camera.near = 0.1;
-  key.shadow.camera.far = 600;
-
-  const fill = new THREE.PointLight(
-    cfg.fill.color,
-    cfg.fill.intensity,
-    cfg.fill.distance,
-    cfg.fill.decay
+  const camera = new THREE.PerspectiveCamera(
+    CAMERA_FOV,
+    sizes.width / sizes.height,
+    CAMERA_NEAR,
+    CAMERA_FAR
   );
-  fill.name = 'fill';
-  fill.position.copy(cfg.fill.position);
-  fill.castShadow = false;
+  camera.position.copy(CAMERA_STATIC);
+  camera.lookAt(LOOK_TARGET);
+  scene.add(camera);
 
-  return {
-    ambient,
-    key,
-    fill,
-    addToScene(scene: THREE.Scene) {
-      scene.add(ambient, key, fill);
-    },
-  };
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+
+  const timer = new THREE.Timer();
+
+  function onResize(): void {
+    sizes.width = window.innerWidth;
+    sizes.height = window.innerHeight;
+    camera.aspect = sizes.width / sizes.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  }
+
+  window.addEventListener('resize', onResize);
+
+  canvas.addEventListener('dblclick', () => {
+    if (!document.fullscreenElement) {
+      renderer.domElement.requestFullscreen().catch((err) => {
+        // biome-ignore lint/suspicious/noConsole: dev infrastructure
+        console.warn('Fullscreen request rejected:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+    onResize();
+  });
+
+  return { scene, camera, renderer, timer, sizes };
+}
+
+export function startLoop(
+  ctx: SceneContext,
+  onFrame: (delta: number, elapsed: number) => void
+): void {
+  function animate(): void {
+    requestAnimationFrame(animate);
+
+    ctx.timer.update();
+    const delta = ctx.timer.getDelta();
+    const elapsed = ctx.timer.getElapsed();
+
+    onFrame(delta, elapsed);
+  }
+
+  animate();
 }
