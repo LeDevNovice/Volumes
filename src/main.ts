@@ -214,14 +214,15 @@ const timer = new THREE.Timer();
 
 function animate(): void {
   requestAnimationFrame(animate);
+
   timer.update();
+  const elapsed = timer.getElapsed();
 
   if (isOrbiting) {
-    const t = timer.getElapsed();
     const radius = 280;
-    camera.position.x = Math.sin(t * 0.12) * radius;
-    camera.position.z = Math.cos(t * 0.12) * radius;
-    camera.position.y = 80 + Math.sin(t * 0.08) * 40;
+    camera.position.x = Math.sin(elapsed * 0.12) * radius;
+    camera.position.z = Math.cos(elapsed * 0.12) * radius;
+    camera.position.y = 80 + Math.sin(elapsed * 0.08) * 40;
     camera.lookAt(LOOK_TARGET);
   }
 
