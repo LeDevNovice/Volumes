@@ -184,6 +184,32 @@ if (DEBUG) {
     .name('reset all lights');
 }
 
+function onResize(): void {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+}
+
+window.addEventListener('resize', onResize);
+
+canvas.addEventListener('dblclick', () => {
+  if (!document.fullscreenElement) {
+    renderer.domElement.requestFullscreen().catch((err) => {
+      // biome-ignore lint/suspicious/noConsole: dev tool
+      console.warn('Fullscreen request rejected:', err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+
+  onResize();
+});
+
 const timer = new THREE.Timer();
 
 function animate(): void {
@@ -209,12 +235,3 @@ function animate(): void {
 }
 
 animate();
-
-window.addEventListener('resize', () => {
-  sizes.width = window.innerWidth;
-  sizes.height = window.innerHeight;
-  camera.aspect = sizes.width / sizes.height;
-  camera.updateProjectionMatrix();
-  renderer.setSize(sizes.width, sizes.height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-});
