@@ -23,6 +23,7 @@
     "@types/three": "^0.183.1",
     "lint-staged": "^16.3.3",
     "simple-git-hooks": "^2.13.1",
+    "stats-gl": "^4.1.0",
     "typescript": "~5.9.3",
     "vite": "^8.0.0"
   },
