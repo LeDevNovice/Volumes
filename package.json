@@ -21,6 +21,7 @@
     "@commitlint/config-conventional": "^20.4.4",
     "@commitlint/types": "^20.4.4",
     "@types/three": "^0.183.1",
+    "lil-gui": "^0.21.0",
     "lint-staged": "^16.3.3",
     "simple-git-hooks": "^2.13.1",
     "stats-gl": "^4.1.0",
