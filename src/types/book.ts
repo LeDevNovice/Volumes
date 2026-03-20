@@ -20,4 +20,5 @@ export interface BookData {
   dimensions: BookDimensions;
   finish: BookFinish;
   color?: number;
+  coverUrl?: string;
 }

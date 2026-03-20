@@ -5,6 +5,7 @@ import { createMaterialVariantBooks } from './scene/books';
 import { buildLightingRig, LIGHTING } from './scene/lighting';
 import { CAMERA_STATIC, initScene, LOOK_TARGET, startLoop } from './scene/SceneManager';
 import { buildShelf } from './scene/ShelfBuilder';
+import { createTexturedBook } from './scene/texturedBook';
 import { DEBUG, initGUI, initSceneHelpers, initStats } from './utils/debug';
 
 const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl');
@@ -52,6 +53,9 @@ function rebuildShelf(): void {
 
 const bookVariants = createMaterialVariantBooks();
 scene.add(bookVariants);
+
+const texturedBook = await createTexturedBook(35);
+scene.add(texturedBook);
 
 let isOrbiting = true;
 
