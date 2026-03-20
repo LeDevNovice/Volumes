@@ -8,4 +8,4 @@ A 3D bookshelf scene with a clean module architecture to build on.
 
 ---
 
-[0.0.1]: https://github.com/LeDevNovice/Volumes/releases/tag/v0.0.1
+[0.0.1]: https://github.com/LeDevNovice/Volumes/releases/tag/0.0.1
