@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import type { ShelfBuildParams } from './core/ShelfConfig';
 import { defaultShelfConfig } from './core/ShelfConfig';
 import { buildLightingRig, LIGHTING } from './scene/lighting';
 import { CAMERA_STATIC, initScene, LOOK_TARGET, startLoop } from './scene/SceneManager';
 import { buildShelf } from './scene/ShelfBuilder';
-import { DEBUG, initGUI, initSceneHelpers, initStats, type ShelfBuildParams } from './utils/debug';
+import { DEBUG, initGUI, initSceneHelpers, initStats } from './utils/debug';
 
 const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl');
 if (!canvas) throw new Error('Canvas element not found in DOM');

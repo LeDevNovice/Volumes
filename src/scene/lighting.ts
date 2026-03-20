@@ -17,12 +17,18 @@ export interface LightingConfig {
     distance: number;
     decay: number;
   };
+  rim: {
+    color: number;
+    intensity: number;
+    position: THREE.Vector3;
+  };
 }
 
 export interface ThreePointRig {
   ambient: THREE.AmbientLight;
   key: THREE.DirectionalLight;
   fill: THREE.PointLight;
+  rim: THREE.DirectionalLight;
   addToScene: (scene: THREE.Scene) => void;
 }
 
@@ -42,6 +48,11 @@ export const LIGHTING: LightingConfig = {
     position: new THREE.Vector3(-100, 100, 50),
     distance: 400,
     decay: 2,
+  },
+  rim: {
+    color: 0xfff0e8,
+    intensity: 0.5,
+    position: new THREE.Vector3(0.3, 1.5, -2),
   },
 } as const;
 
@@ -71,12 +82,18 @@ export function buildLightingRig(cfg: LightingConfig = LIGHTING): ThreePointRig 
   fill.position.copy(cfg.fill.position);
   fill.castShadow = false;
 
+  const rim = new THREE.DirectionalLight(cfg.rim.color, cfg.rim.intensity);
+  rim.name = 'rim';
+  rim.position.copy(cfg.rim.position);
+  rim.castShadow = false;
+
   return {
     ambient,
     key,
     fill,
+    rim,
     addToScene(scene: THREE.Scene) {
-      scene.add(ambient, key, fill);
+      scene.add(ambient, key, fill, rim);
     },
   };
 }

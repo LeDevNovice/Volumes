@@ -1,19 +1,8 @@
 import * as THREE from 'three';
+import type { ShelfBuildParams } from '../core/ShelfConfig';
 import type { LightingConfig, ThreePointRig } from '../scene/lighting';
 
 export const DEBUG = true;
-
-export interface ShelfBuildParams {
-  width: number;
-  totalHeight: number;
-  depth: number;
-  boardThickness: number;
-  shelfCount: number;
-  hasBack: boolean;
-  hasSides: boolean;
-  color: number;
-  showWireframes: boolean;
-}
 
 export interface GUIContext {
   rig: ThreePointRig;
@@ -94,6 +83,22 @@ export async function initGUI(ctx: GUIContext): Promise<void> {
     });
   fillFolder.close();
 
+  const rimFolder = gui.addFolder('Rim Light (DirectionalLight)');
+  rimFolder
+    .add({ intensity: ctx.rig.rim.intensity }, 'intensity', 0, 2, 0.01)
+    .onChange((v: number) => {
+      ctx.rig.rim.intensity = v;
+    });
+  rimFolder
+    .addColor({ color: `#${ctx.rig.rim.color.getHexString()}` }, 'color')
+    .onChange((v: string) => {
+      ctx.rig.rim.color.set(v);
+    });
+  rimFolder.add(ctx.rig.rim.position, 'x', -200, 200, 1).name('position.x');
+  rimFolder.add(ctx.rig.rim.position, 'y', 0, 300, 1).name('position.y');
+  rimFolder.add(ctx.rig.rim.position, 'z', -400, 0, 1).name('position.z');
+  rimFolder.close();
+
   const shelfFolder = gui.addFolder('Shelf Config');
   shelfFolder
     .add(ctx.shelfParams, 'width', 40, 240, 1)
@@ -155,6 +160,8 @@ export async function initGUI(ctx: GUIContext): Promise<void> {
           ctx.rig.key.intensity = ctx.LIGHTING.key.intensity;
           ctx.rig.key.position.copy(ctx.LIGHTING.key.position);
           ctx.rig.fill.intensity = ctx.LIGHTING.fill.intensity;
+          ctx.rig.rim.intensity = ctx.LIGHTING.rim.intensity;
+          ctx.rig.rim.position.copy(ctx.LIGHTING.rim.position);
           gui.reset();
         },
       },
@@ -162,3 +169,5 @@ export async function initGUI(ctx: GUIContext): Promise<void> {
     )
     .name('reset all lights');
 }
+
+export type { ShelfBuildParams };

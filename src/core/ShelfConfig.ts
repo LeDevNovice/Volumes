@@ -113,3 +113,7 @@ export function computeZoneHeight(config: ShelfConfig): number {
 
   return (usableHeight - internalCount * boardThickness) / zoneCount;
 }
+
+export type ShelfBuildParams = ShelfConfig & {
+  showWireframes: boolean;
+};

@@ -18,14 +18,14 @@ function makeMesh(
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
   mesh.position.copy(position);
-  mesh.matrixAutoUpdate = false;
+  mesh.matrixAutoUpdate = false; // This tells Three.js not to recompute the local matrix every frame
   mesh.updateMatrix();
 
   const wire = new THREE.Mesh(geo, wireMat);
   wire.name = `${name}-wire`;
   wire.position.copy(position);
   wire.visible = showWire;
-  wire.matrixAutoUpdate = false;
+  wire.matrixAutoUpdate = false; // This tells Three.js not to recompute the local matrix every frame
   wire.updateMatrix();
 
   return [mesh, wire];
