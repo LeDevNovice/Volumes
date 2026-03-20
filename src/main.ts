@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { ShelfBuildParams } from './core/ShelfConfig';
 import { defaultShelfConfig } from './core/ShelfConfig';
+import { createMaterialVariantBooks } from './scene/books';
 import { buildLightingRig, LIGHTING } from './scene/lighting';
 import { CAMERA_STATIC, initScene, LOOK_TARGET, startLoop } from './scene/SceneManager';
 import { buildShelf } from './scene/ShelfBuilder';
@@ -48,6 +49,9 @@ function rebuildShelf(): void {
   shelfGroup = buildShelf(shelfParams, shelfParams.showWireframes);
   scene.add(shelfGroup);
 }
+
+const bookVariants = createMaterialVariantBooks();
+scene.add(bookVariants);
 
 let isOrbiting = true;
 
