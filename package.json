@@ -1,0 +1,41 @@
+{
+  "name": "volumes",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint ./src",
+    "lint:fix": "biome lint --write ./src",
+    "format": "biome format --write ./src",
+    "check": "biome check ./src",
+    "check:fix": "biome check --write ./src",
+    "ci": "biome ci ./src"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.6",
+    "@commitlint/cli": "^20.4.4",
+    "@commitlint/config-conventional": "^20.4.4",
+    "@commitlint/types": "^20.4.4",
+    "@types/three": "^0.183.1",
+    "lil-gui": "^0.21.0",
+    "lint-staged": "^16.3.3",
+    "simple-git-hooks": "^2.13.1",
+    "stats-gl": "^4.1.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged",
+    "commit-msg": "npx commitlint --edit $1"
+  },
+  "lint-staged": {
+    "*.{ts,json}": "biome check --write --no-errors-on-unmatched"
+  },
+  "dependencies": {
+    "three": "^0.183.2"
+  }
+}
