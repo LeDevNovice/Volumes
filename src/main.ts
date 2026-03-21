@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import type { ShelfBuildParams } from './core/ShelfConfig';
 import { defaultShelfConfig } from './core/ShelfConfig';
+import { createHardcoverBook } from './scene/Bookmesh';
 import { createMaterialVariantBooks } from './scene/books';
 import { buildLightingRig, LIGHTING } from './scene/lighting';
 import { CAMERA_STATIC, initScene, LOOK_TARGET, startLoop } from './scene/SceneManager';
 import { buildShelf } from './scene/ShelfBuilder';
-import { createTexturedBook } from './scene/texturedBook';
 import { DEBUG, initGUI, initSceneHelpers, initStats } from './utils/debug';
 
 async function init(): Promise<void> {
@@ -55,8 +55,17 @@ async function init(): Promise<void> {
   const bookVariants = createMaterialVariantBooks();
   scene.add(bookVariants);
 
-  const texturedBook = await createTexturedBook(35);
-  scene.add(texturedBook);
+  const hardcoverBook = await createHardcoverBook({
+    spineThicknessCm: 3.5,
+    bookHeightCm: 24,
+    bookDepthCm: 17,
+    position: { x: 0, y: 2, z: 0 },
+    color: 0x1a3a6b,
+    roughness: 0.45,
+    metalness: 0,
+    coverUrl: '/textures/cover_test.jpg',
+  });
+  scene.add(hardcoverBook);
 
   let isOrbiting = true;
 

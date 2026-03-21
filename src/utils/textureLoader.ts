@@ -8,23 +8,3 @@ export async function loadColorTexture(url: string): Promise<THREE.Texture> {
 
   return texture;
 }
-
-export function loadColorTextureSync(
-  url: string,
-  onLoad: (texture: THREE.Texture) => void,
-  onError?: (error: unknown) => void
-): void {
-  textureLoader.load(
-    url,
-    (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      onLoad(texture);
-    },
-    undefined,
-    (error) => {
-      // biome-ignore lint/suspicious/noConsole: dev infrastructure
-      console.error(`[textureLoader] Failed to load: ${url}`, error);
-      onError?.(error);
-    }
-  );
-}
